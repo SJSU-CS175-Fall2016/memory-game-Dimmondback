@@ -34,5 +34,14 @@
                 <category android:name="android.intent.category.GAME"/>
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".VictoryActivity"
+            android:configChanges="orientation">
+            <intent-filter>
+                <action android:name="android.intent.action.VICTORY"/>
+                <category android:name="android.intent.category.VICTORY"/>
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

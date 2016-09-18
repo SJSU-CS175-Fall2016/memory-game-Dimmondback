@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
   public void onSaveInstanceState(Bundle outState) {
     if (saveData.get("height") != null) {
       outState.putInt("height", saveData.get("height"));
+      outState.putInt("width", saveData.get("width"));
       outState.putInt("points", saveData.get("points"));
       outState.putInt("checked", saveData.get("checked"));
       outState.putInt("flipped", saveData.get("flipped"));
