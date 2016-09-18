@@ -34,11 +34,9 @@ public class GameActivity extends AppCompatActivity {
     boolean reload = (this.getIntent().getExtras() != null);
     System.out.println("Extras != null: " + reload);
     if (reload) {
-      reload = this.getIntent().getExtras().get("restart") != null;
-      System.out.println("restart != null: " + reload);
-      if (reload) {
+      if (this.getIntent().getExtras().get("restart") != null) {
         reload = !((boolean) this.getIntent().getExtras().get("restart"));
-        System.out.println("restart: " + !reload);
+        System.out.println("restart != null, it's: " + !reload);
       }
     }
 
@@ -48,10 +46,10 @@ public class GameActivity extends AppCompatActivity {
     }
 
     if (reload) {
-      if (savedInstanceState != null) {
-        bundle = savedInstanceState;
-      } else {
+      if (this.getIntent().getExtras() != null) {
         bundle = this.getIntent().getExtras();
+      } else {
+        bundle = savedInstanceState;
       }
       buttonsList = new ArrayList<>();
       selectedTile = (int) bundle.get("checked");
