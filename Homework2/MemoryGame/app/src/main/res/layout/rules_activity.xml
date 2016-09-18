@@ -4,8 +4,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/default_margin">
+
     <TextView
+        android:id="@+id/rules_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="16sp"
+        android:layout_marginBottom="@dimen/default_margin"
         android:text="@string/rules_text" />
+
+    <TextView
+        android:id="@+id/rules_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rules_title"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:text="@string/rules_text_top" />
+
+    <TextView
+        android:id="@+id/rules_middle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rules_top"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:text="@string/rules_text_middle" />
+
+    <TextView
+        android:id="@+id/rules_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rules_middle"
+        android:text="@string/rules_text_bottom" />
 </RelativeLayout>

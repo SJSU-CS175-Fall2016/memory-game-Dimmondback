@@ -15,12 +15,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class GameActivity extends AppCompatActivity {
-  private int points = 0;
+  private Integer points;
   ArrayList<Tile> buttonsList;
-  ArrayList<Integer> idList;
   TextView pointsText;
   LinearLayout viewHolder;
-  int selectedTile = -1;
+  int selectedTile;
 
   // Please note that when modifying these values, add/remove images equal to 2*(diff).
   int width = 4;
@@ -30,53 +29,42 @@ public class GameActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     Bundle bundle;
 
-    //(TODO) (nsaric) add functionality for loading data just like rotation.
-    if (getIntent().getExtras() != null) {
-      bundle = new Bundle();
-      bundle.putInt("checked", (int) this.getIntent().getExtras().get("checked"));
-      bundle.putInt("points", (int) this.getIntent().getExtras().get("points"));
-      for (int i = 0; i < (int) this.getIntent().getExtras().get("height"); i++) {
-        for (int j = 0; j < (int) this.getIntent().getExtras().get("width"); j++) {
-          String key = "" + i + j;
-          bundle.putInt(key, (int) this.getIntent().getExtras().get(key));
-        }
+    if (this.getIntent().getExtras() != null || savedInstanceState != null) {
+      if (this.getIntent().getExtras() != null) {
+        bundle = this.getIntent().getExtras();
+      } else {
+        bundle = savedInstanceState;
       }
-    } else {
-      bundle = savedInstanceState;
-    }
-
-    super.onCreate(bundle);
-    setContentView(R.layout.game_activity);
-
-    if (buttonsList == null) {
       buttonsList = new ArrayList<>();
-    }
-    if (idList == null) {
-      idList = new ArrayList<>();
-    }
-
-    pointsText = (TextView) findViewById(R.id.points_text);
-    viewHolder = (LinearLayout) findViewById(R.id.view_holder);
-
-    pointsText.setText(R.string.points + points);
-
-    if (bundle != null && bundle.get("01") != null) {
-      System.out.println("onCreate notNullState called.");
-      idList = new ArrayList<>();
       selectedTile = (int) bundle.get("checked");
       points = (int) bundle.get("points");
       for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
           String key = "" + i + j;
-          idList.add((int) bundle.get(key));
+          buttonsList.add(new Tile(getApplicationContext(), (int) bundle.get(key), (
+              (int) bundle.get(key) == R.drawable.check
+                  || (i * height - i) + j == selectedTile)));
         }
       }
     } else {
-      generateButtons(bundle);
+      bundle = null;
+      buttonsList = new ArrayList<>();
+      selectedTile = -1;
+      points = 0;
     }
+
+    super.onCreate(bundle);
+    setContentView(R.layout.game_activity);
+
+    pointsText = (TextView) findViewById(R.id.points_text);
+    viewHolder = (LinearLayout) findViewById(R.id.view_holder);
+    String initialPoints = getString(R.string.points) + points;
+    pointsText.setText(initialPoints);
+
+    generateButtons(bundle == savedInstanceState);
   }
 
-  public void generateButtons(Bundle inBundle) {
+  public void generateButtons(boolean newButtons) {
     viewHolder.removeAllViews();
     for (int i = 0; i < height; i++) {
       LinearLayout row = new LinearLayout(viewHolder.getContext());
@@ -84,15 +72,19 @@ public class GameActivity extends AppCompatActivity {
       row.setOrientation(LinearLayout.HORIZONTAL);
       for (int j = 0; j < width; j++) {
         Tile button;
-        if (inBundle == null || inBundle.get("01") == null) { // New buttons.
+        if (newButtons) { // New buttons.
           int imageSource =
               (int) Math.round(Math.random()) == 0 ? R.drawable.image1 : R.drawable.image2;
           button = new Tile(viewHolder.getContext(), imageSource);
         } else { // Recreate buttons.
-          int pos = (i * height - i) + (j);
-          button = new Tile(getApplicationContext(), idList.get(pos), (
-              idList.get((i * height - i) + j) == R.drawable.check
-                  || (i * height - i) + j == selectedTile));
+          int pos = (i * height - i) + j;
+          boolean check = (
+              buttonsList.get(pos).imageResource == R.drawable.check
+                  || pos == selectedTile);
+          System.out.println("pos: " + pos + " check: " + check);
+          button = new Tile(getApplicationContext(), buttonsList.get(pos).imageResource, (
+              buttonsList.get(pos).imageResource == R.drawable.check
+                  || pos == selectedTile));
         }
         button.setScaleType(ImageView.ScaleType.CENTER);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.0f);
@@ -135,7 +127,6 @@ public class GameActivity extends AppCompatActivity {
         }
         row.addView(button);
         buttonsList.add(button);
-        idList.add(button.imageResource);
       }
       viewHolder.addView(row);
     }
@@ -159,18 +150,19 @@ public class GameActivity extends AppCompatActivity {
   public void onRestoreInstanceState(Bundle inBundle) {
     super.onRestoreInstanceState(inBundle);
 
-    if (inBundle != null) {
-      idList = new ArrayList<>();
+    if (inBundle != null && buttonsList == null) {
       selectedTile = (int) inBundle.get("checked");
       points = (int) inBundle.get("points");
       for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
           String key = "" + i + j;
-          idList.add((int) inBundle.get(key));
+          buttonsList.add(new Tile(getApplicationContext(), (int) inBundle.get(key), (
+              (int) inBundle.get(key) == R.drawable.check
+                  || (i * height - i) + j == selectedTile)));
         }
       }
+      generateButtons(false);
     }
-    generateButtons(inBundle);
   }
 
   @Override
@@ -187,6 +179,7 @@ public class GameActivity extends AppCompatActivity {
         main.putExtra(key, buttonsList.get(pos).imageResource);
       }
     }
+    startActivity(main);
     super.onBackPressed();
   }
 
