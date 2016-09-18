@@ -31,13 +31,26 @@ public class GameActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     Bundle bundle;
 
-    if (this.getIntent().getExtras() != null || savedInstanceState != null) {
-      System.out.print("Someone not null: ");
+    boolean reload = (this.getIntent().getExtras() != null);
+    System.out.println("Extras != null: " + reload);
+    if (reload) {
+      reload = this.getIntent().getExtras().get("restart") != null;
+      System.out.println("restart != null: " + reload);
+      if (reload) {
+        reload = !((boolean) this.getIntent().getExtras().get("restart"));
+        System.out.println("restart: " + !reload);
+      }
+    }
+
+    if (savedInstanceState != null) { // Check both Extras and savedInstanceState.
+      System.out.println("savedInstanceState != null");
+      reload = true;
+    }
+
+    if (reload) {
       if (savedInstanceState != null) {
-        System.out.println("saveState");
         bundle = savedInstanceState;
       } else {
-        System.out.println("Extras");
         bundle = this.getIntent().getExtras();
       }
       buttonsList = new ArrayList<>();
@@ -47,6 +60,7 @@ public class GameActivity extends AppCompatActivity {
       for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
           String key = "" + i + j;
+          System.out.print((i * height - i + j) + " ");
           buttonsList.add(new Tile(getApplicationContext(), (int) bundle.get(key), (
               (int) bundle.get(key) == R.drawable.check
                   || (i * height - i) + j == selectedTile)));
@@ -75,9 +89,8 @@ public class GameActivity extends AppCompatActivity {
     String initialPoints = getString(R.string.points) + points;
     pointsText.setText(initialPoints);
 
-    boolean check = !(this.getIntent().getExtras() != null || savedInstanceState != null);
-    System.out.println("check: " + check);
-    generateButtons(check);
+    System.out.println("!reload: " + !reload);
+    generateButtons(!reload);
   }
 
   public void generateButtons(boolean newButtons) {
@@ -96,6 +109,9 @@ public class GameActivity extends AppCompatActivity {
           button = new Tile(getApplicationContext(), buttonsList.get(pos).imageResource, (
               buttonsList.get(pos).imageResource == R.drawable.check
                   || pos == selectedTile));
+          if (pos == selectedTile) {
+            button.setBackgroundResource(button.imageResource);
+          }
         }
         button.setScaleType(ImageView.ScaleType.CENTER);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.0f);
@@ -119,6 +135,12 @@ public class GameActivity extends AppCompatActivity {
                   if (((Tile) v).imageResource == R.drawable.check) {
                     flipped += 2;
                     points++;
+                    if (flipped == (width * height)) {
+                      Intent victory = new Intent(getApplicationContext(), VictoryActivity.class);
+                      victory.putExtra("points", points);
+                      startActivity(victory);
+                      finish();
+                    }
                     selectedTile = -1;
                   } else {
                     points--;
@@ -138,7 +160,11 @@ public class GameActivity extends AppCompatActivity {
           button.setOnClickListener(null);
         }
         row.addView(button);
-        buttonsList.add(button);
+        if (!newButtons) {
+          buttonsList.set((i * height - i) + j, button);
+        } else {
+          buttonsList.add(button);
+        }
       }
       viewHolder.addView(row);
     }
@@ -170,10 +196,11 @@ public class GameActivity extends AppCompatActivity {
   public void onRestoreInstanceState(Bundle inBundle) {
     super.onRestoreInstanceState(inBundle);
 
-    if (inBundle != null && buttonsList == null) {
+    if (inBundle != null && buttonsList != null) {
       selectedTile = (int) inBundle.get("checked");
       points = (int) inBundle.get("points");
       flipped = (int) inBundle.get("flipped");
+      buttonsList.clear();
       for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
           String key = "" + i + j;

@@ -12,7 +12,7 @@ public class MainActivity extends AppCompatActivity {
   private HashMap<String, Integer> saveData;
 
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
@@ -24,15 +24,17 @@ public class MainActivity extends AppCompatActivity {
       } else {
         bundle = this.getIntent().getExtras();
       }
-      saveData.put("height", (int) bundle.get("height"));
-      saveData.put("width", (int) bundle.get("width"));
-      saveData.put("checked", (int) bundle.get("checked"));
-      saveData.put("points", (int) bundle.get("points"));
-      saveData.put("flipped", (int) bundle.get("flipped"));
-      for (int i = 0; i < saveData.get("height"); i++) {
-        for (int j = 0; j < saveData.get("width"); j++) {
-          String key = "" + i + j;
-          saveData.put(key, (int) bundle.get(key));
+      if (bundle.get("height") != null) {
+        saveData.put("height", (int) bundle.get("height"));
+        saveData.put("width", (int) bundle.get("width"));
+        saveData.put("checked", (int) bundle.get("checked"));
+        saveData.put("points", (int) bundle.get("points"));
+        saveData.put("flipped", (int) bundle.get("flipped"));
+        for (int i = 0; i < saveData.get("height"); i++) {
+          for (int j = 0; j < saveData.get("width"); j++) {
+            String key = "" + i + j;
+            saveData.put(key, (int) bundle.get(key));
+          }
         }
       }
     }
@@ -46,13 +48,13 @@ public class MainActivity extends AppCompatActivity {
           if (saveData.get("height") != null) {
             game.putExtra("points", saveData.get("points"));
             game.putExtra("checked", saveData.get("checked"));
+            game.putExtra("flipped", saveData.get("flipped"));
             for (int i = 0; i < saveData.get("height"); i++) {
               for (int j = 0; j < saveData.get("width"); j++) {
                 String key = "" + i + j;
                 game.putExtra(key, (int) saveData.get(key));
               }
             }
-            System.out.println("mainPoints Click: " + (saveData.get("points")));
           }
           startActivity(game);
           finish();
@@ -69,6 +71,42 @@ public class MainActivity extends AppCompatActivity {
           startActivity(game);
         }
       });
+    }
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    if (saveData.get("height") != null) {
+      outState.putInt("height", saveData.get("height"));
+      outState.putInt("points", saveData.get("points"));
+      outState.putInt("checked", saveData.get("checked"));
+      outState.putInt("flipped", saveData.get("flipped"));
+      for (int i = 0; i < saveData.get("height"); i++) {
+        for (int j = 0; j < saveData.get("width"); j++) {
+          String key = "" + i + j;
+          outState.putInt(key, saveData.get(key));
+        }
+      }
+    }
+    super.onSaveInstanceState(outState);
+  }
+
+  @Override
+  public void onRestoreInstanceState(Bundle inBundle) {
+    super.onRestoreInstanceState(inBundle);
+
+    if (inBundle != null && saveData.get("height") != null) {
+      saveData.put("height", (int) inBundle.get("height"));
+      saveData.put("width", (int) inBundle.get("width"));
+      saveData.put("checked", (int) inBundle.get("checked"));
+      saveData.put("points", (int) inBundle.get("points"));
+      saveData.put("flipped", (int) inBundle.get("flipped"));
+      for (int i = 0; i < (int) inBundle.get("height"); i++) {
+        for (int j = 0; j < (int) inBundle.get("width"); j++) {
+          String key = "" + i + j;
+          saveData.put(key, (int) inBundle.get(key));
+        }
+      }
     }
   }
 }
