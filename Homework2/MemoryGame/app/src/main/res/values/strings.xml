@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Memory Game App</string>
+    <string name="memory_game_title">Welcome to the Memory Game</string>
+    <string name="memory_game_text">Memory Game</string>
+    <string name="play_text">Play</string>
+    <string name="rules_text">Rules</string>
+    <string name="points">Points: </string>
+    <string name="title_activity_game">GameActivity</string>
+</resources>
