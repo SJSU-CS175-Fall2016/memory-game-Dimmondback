@@ -17,18 +17,24 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
 
     saveData = new HashMap<>();
-    if (this.getIntent().getExtras() != null) {
-      saveData.put("height", (int) this.getIntent().getExtras().get("height"));
-      saveData.put("width", (int) this.getIntent().getExtras().get("width"));
-      saveData.put("checked", (int) this.getIntent().getExtras().get("checked"));
-      saveData.put("points", (int) this.getIntent().getExtras().get("points"));
+    if (savedInstanceState != null || this.getIntent().getExtras() != null) {
+      Bundle bundle;
+      if (savedInstanceState != null) {
+        bundle = savedInstanceState;
+      } else {
+        bundle = this.getIntent().getExtras();
+      }
+      saveData.put("height", (int) bundle.get("height"));
+      saveData.put("width", (int) bundle.get("width"));
+      saveData.put("checked", (int) bundle.get("checked"));
+      saveData.put("points", (int) bundle.get("points"));
+      saveData.put("flipped", (int) bundle.get("flipped"));
       for (int i = 0; i < saveData.get("height"); i++) {
         for (int j = 0; j < saveData.get("width"); j++) {
           String key = "" + i + j;
-          saveData.put(key, (int) this.getIntent().getExtras().get(key));
+          saveData.put(key, (int) bundle.get(key));
         }
       }
-      System.out.println("mainPointsCreate: " + (saveData.get("points")));
     }
 
     Button playButton = (Button) findViewById(R.id.play_button);
@@ -60,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
           Intent game = new Intent(getApplicationContext(), RulesActivity.class);
-          game.putExtra("saveData", saveData);
           startActivity(game);
         }
       });

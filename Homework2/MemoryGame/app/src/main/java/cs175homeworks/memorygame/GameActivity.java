@@ -17,9 +17,11 @@ import java.util.ArrayList;
 public class GameActivity extends AppCompatActivity {
   private Integer points;
   ArrayList<Tile> buttonsList;
+  ArrayList<Integer> picturesList;
   TextView pointsText;
   LinearLayout viewHolder;
   int selectedTile;
+  int flipped;
 
   // Please note that when modifying these values, add/remove images equal to 2*(diff).
   int width = 4;
@@ -30,13 +32,17 @@ public class GameActivity extends AppCompatActivity {
     Bundle bundle;
 
     if (this.getIntent().getExtras() != null || savedInstanceState != null) {
-      if (this.getIntent().getExtras() != null) {
-        bundle = this.getIntent().getExtras();
-      } else {
+      System.out.print("Someone not null: ");
+      if (savedInstanceState != null) {
+        System.out.println("saveState");
         bundle = savedInstanceState;
+      } else {
+        System.out.println("Extras");
+        bundle = this.getIntent().getExtras();
       }
       buttonsList = new ArrayList<>();
       selectedTile = (int) bundle.get("checked");
+      flipped = (int) bundle.get("flipped");
       points = (int) bundle.get("points");
       for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -51,6 +57,14 @@ public class GameActivity extends AppCompatActivity {
       buttonsList = new ArrayList<>();
       selectedTile = -1;
       points = 0;
+      flipped = 0;
+      picturesList = new ArrayList<>();
+      for (int i = 0; i < (width * height)/2; i++) {
+        int id = getResources().getIdentifier(
+            "image" + i, "drawable", getApplicationContext().getPackageName());
+        picturesList.add(id);
+        picturesList.add(id);
+      }
     }
 
     super.onCreate(bundle);
@@ -61,7 +75,9 @@ public class GameActivity extends AppCompatActivity {
     String initialPoints = getString(R.string.points) + points;
     pointsText.setText(initialPoints);
 
-    generateButtons(bundle == savedInstanceState);
+    boolean check = !(this.getIntent().getExtras() != null || savedInstanceState != null);
+    System.out.println("check: " + check);
+    generateButtons(check);
   }
 
   public void generateButtons(boolean newButtons) {
@@ -73,15 +89,10 @@ public class GameActivity extends AppCompatActivity {
       for (int j = 0; j < width; j++) {
         Tile button;
         if (newButtons) { // New buttons.
-          int imageSource =
-              (int) Math.round(Math.random()) == 0 ? R.drawable.image1 : R.drawable.image2;
+          int imageSource = randomPicture();
           button = new Tile(viewHolder.getContext(), imageSource);
         } else { // Recreate buttons.
           int pos = (i * height - i) + j;
-          boolean check = (
-              buttonsList.get(pos).imageResource == R.drawable.check
-                  || pos == selectedTile);
-          System.out.println("pos: " + pos + " check: " + check);
           button = new Tile(getApplicationContext(), buttonsList.get(pos).imageResource, (
               buttonsList.get(pos).imageResource == R.drawable.check
                   || pos == selectedTile));
@@ -106,6 +117,7 @@ public class GameActivity extends AppCompatActivity {
                   Tile flippedTile = buttonsList.get(selectedTile);
                   ((Tile) v).flip(flippedTile);
                   if (((Tile) v).imageResource == R.drawable.check) {
+                    flipped += 2;
                     points++;
                     selectedTile = -1;
                   } else {
@@ -132,10 +144,18 @@ public class GameActivity extends AppCompatActivity {
     }
   }
 
+  public int randomPicture() {
+    int position = (int) (Math.random() * picturesList.size());
+    int pictureId = picturesList.get(position);
+    picturesList.remove(position);
+    return pictureId;
+  }
+
   @Override
   public void onSaveInstanceState(Bundle outState) {
     outState.putInt("points", points);
     outState.putInt("checked", selectedTile);
+    outState.putInt("flipped", flipped);
     for (int i = 0; i < height; i++) {
       for (int j = 0; j < width; j++) {
         String key = "" + i + j;
@@ -153,6 +173,7 @@ public class GameActivity extends AppCompatActivity {
     if (inBundle != null && buttonsList == null) {
       selectedTile = (int) inBundle.get("checked");
       points = (int) inBundle.get("points");
+      flipped = (int) inBundle.get("flipped");
       for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
           String key = "" + i + j;
@@ -172,6 +193,7 @@ public class GameActivity extends AppCompatActivity {
     main.putExtra("width", width);
     main.putExtra("points", points);
     main.putExtra("checked", selectedTile);
+    main.putExtra("flipped", flipped);
     for (int i = 0; i < height; i++) {
       for (int j = 0; j < width; j++) {
         String key = "" + i + j;

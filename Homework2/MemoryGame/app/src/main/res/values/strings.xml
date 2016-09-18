@@ -6,6 +6,7 @@
     <string name="rules_text">Rules</string>
     <string name="points">Points: </string>
     <string name="title_activity_game">GameActivity</string>
+    <string name="victory">You are a winner!</string>
     <string name="rules_text_top">You will be given 20 tiles to select from. There are 10 images available that each of two tiles will have.</string>
     <string name="rules_text_middle">You may select any two tiles. Touching a tile will show that tile\'s image. If the two tiles match, they will become check marks, otherwise they will turn face-down.</string>
     <string name="rules_text_bottom">Matching tiles gets you a point while mismatching loses you a point. Good luck and have fun\!</string>
